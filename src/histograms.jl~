@@ -1,0 +1,33 @@
+export
+    histradial
+
+function histradial(particles::Vector{AbstractParticle},
+                    box::AbstractVector, npoints::Int)
+    nparticles = size(particles, 1)
+    bin_edges = [r for r in range(0, minimum(box)/2; length=npoints+1)]
+    δr = bin_edges[2] - bin_edges[1]
+    rpoints = bin_edges[1:end-1] .+ δr / 2
+    hist = zeros(npoints)
+
+    @inbounds for i in 1:nparticles
+        r_i = particles[i]
+        for j in i+1:nparticles
+            r_j = particles[j]
+            r_ij = distance(r_i, r_j, box)
+            k = floor(Int, r_ij / δr) + 1
+            if k ≤ npoints
+                hist[k] += 2.0
+            end # if
+        end # for
+    end # for
+
+    return rpoints, hist
+end # function
+
+
+function histradial(particles, boxedge::Float64, npoints::Int)
+    getparams(r::SVector{D,T}) where {D,T} = (D,T)
+    D, T = getparams(particles[1].r)
+    box = SVector{D,T}(repeat([boxedge], D))
+    histradial(atoms, box, npoints)    
+end # function

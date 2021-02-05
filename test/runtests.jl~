@@ -1,0 +1,6 @@
+using SOMAT
+using Test
+
+@testset "Spatial distributions" begin
+    include("spatialdistributions.jl")  
+end # testset    

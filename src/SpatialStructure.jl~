@@ -1,0 +1,6 @@
+module SpatialStructure
+
+using Particles
+using LinearAlgebra
+
+end # module
