@@ -38,14 +38,14 @@ function radialdistribution(particles, box, δr::Float64)
 end # function
 
 function radialdistribution(particles_A, particles_B, box, npoints::Int)
-    natoms_A = size(atoms_A, 1)
-    natoms_B = size(atoms_B, 1)
-    ρA = natoms_A / prod(box)
-    ρB = natoms_B / prod(box)
+    nparticles_A = size(particles_A, 1)
+    nparticles_B = size(particles_B, 1)
+    ρA = nparticles_A / prod(box)
+    ρB = nparticles_B / prod(box)
     ρ = sqrt(ρA * ρB) # partial density
 
     rpoints, hist = histradial(particles_A, particles_B, box, npoints)
-    n = hist ./ sqrt(natoms_A * natoms_B)
+    n = hist ./ sqrt(nparticles_A * nparticles_B)
     δr = rpoints[2] - rpoints[1]
     n_idealgas = [4π * ρ * rpoints[k]^2 * δr for k in 1:npoints]
 
