@@ -6,6 +6,7 @@ using StaticArrays
 using StatsBase
 
 include("histograms.jl")
+include("centerofmass.jl")
 include("inertiatensor.jl")
 
 end # module
