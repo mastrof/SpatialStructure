@@ -3,7 +3,7 @@ export
 
 # bai, breen 2008 journal of graphical tools
 function centerofmass(particles::P, box::AbstractVector) where P<:AbstractVector{AP} where AP<:AbstractParticle{D,T} where {D,T}
-    rcom = zeros(D)
+    rcom = zero(SVector{D})
     M = size(particles, 1)
     for d in 1:D
         θ = 2π / box[d] .* [p.r[d] for p in particles]
@@ -18,7 +18,7 @@ function centerofmass(particles::P, box::AbstractVector) where P<:AbstractVector
 end # function
 
 function centerofmass(particles::P, box::AbstractVector) where P<:AbstractVector{AP} where AP<:AbstractParticle{D,T} where {D,T}
-    rcom = zeros(D)
+    rcom = zero(SVector{D})
     M = size(particles, 1)
     for d in 1:D
         θ = 2π / box[d] .* [p.r[d] for p in particles]
