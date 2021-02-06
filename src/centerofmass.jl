@@ -3,7 +3,7 @@ export
 
 # bai, breen 2008 journal of graphical tools
 function centerofmass(particles::P, box::AbstractVector) where P<:AbstractVector{AP} where AP<:AbstractParticle{D,T} where {D,T}
-    rcom = zero(SVector{D})
+    rcom = zeros(D)
     M = size(particles, 1)
     for d in 1:D
         θ = 2π / box[d] .* [p.r[d] for p in particles]
@@ -14,11 +14,11 @@ function centerofmass(particles::P, box::AbstractVector) where P<:AbstractVector
         θcom = atan(-ζcom, -ξcom) + π
         rcom[d] = box[d] * θcom / (2π)
     end # for
-    return rcom
+    return SVector{D}(rcom)
 end # function
 
 function centerofmass(particles::P, box::AbstractVector) where P<:AbstractVector{AP} where AP<:AbstractParticle{D,T} where {D,T}
-    rcom = zero(SVector{D})
+    rcom = zeros(D)
     M = size(particles, 1)
     for d in 1:D
         θ = 2π / box[d] .* [p.r[d] for p in particles]
@@ -29,7 +29,7 @@ function centerofmass(particles::P, box::AbstractVector) where P<:AbstractVector
         θcom = atan(-ζcom, -ξcom) + π
         rcom[d] = box[d] * θcom / (2π)
     end # for
-    return rcom
+    return SVector{D}(rcom)
 end # function
 
 function centerofmass(particles::P, box::N) where {P<:AbstractVector{AP},N<:Real} where AP<:AbstractParticle{D,T} where {D,T}
@@ -44,7 +44,7 @@ function centerofmass(particles::P, box::N) where {P<:AbstractVector{AP},N<:Real
         θcom = atan(-ζcom, -ξcom) + π
         rcom[d] = box * θcom / (2π)
     end # for
-    return rcom
+    return SVector{D}(rcom)
 end # function
 
 function centerofmass(atoms::T, box::N) where {T<:AbstractVector{Atom},N<:Real}
@@ -61,5 +61,5 @@ function centerofmass(atoms::T, box::N) where {T<:AbstractVector{Atom},N<:Real}
         θcom = atan(-ζcom, -ξcom) + π
         rcom[d] = box * θcom / (2π)
     end # for
-    return rcom
+    return SVector{D}(rcom)
 end # function
