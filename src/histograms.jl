@@ -9,7 +9,7 @@ getdimension(r::SVector{D,T}) where {D,T} = D
     histradial(particles::Vector{T}, box::AbstractVector, npoints::Int) where {T<:AbstractParticle}
 
 Evaluates the distribution of pair distances of `particles` in a box of edges `box` up to a maximum distance equal to half the shortest edge in order to avoid artefacts from periodic boundary conditions(assumed cubic).
-`npoints` is the sampling density`.
+`npoints` is the sampling density.
 Works with systems of arbitrary dimensionality.
 """
 function histradial(particles::Vector{T},
@@ -54,7 +54,7 @@ end # function
     histradial(particles_A::Vector{T}, particles_B::Vector{T}, box::AbstractVector, npoints::Int) where {T<:AbstractParticle}
 
 Evaluates the distribution of pair distances between `particles_A` and `particles_B` in a box of edges `box` up to a maximum distance equal to half the shortest edge in order to avoid artefacts from periodic boundary conditions(assumed cubic).
-`npoints` is the sampling density`.
+`npoints` is the sampling density.
 Works with systems of arbitrary dimensionality.
 """
 function histradial(particles_A::Vector{T},
