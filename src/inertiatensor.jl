@@ -6,15 +6,22 @@ export
 
 δ(i, j) = i == j ? 1 : 0
 
-function inertiatensor(config::T) where T <:AbstractVector{Particle{3,Float64}}
-    Iij(i, j) = sum([norm(p.r)^2*δ(i,j) - p.r[i]*p.r[j] for p in config])
+function inertiatensor(particles::T, box) where T <:AbstractVector{Particle{3,Float64}}
+    com = centerofmass(particles, box)
+    coords = [distancevector(com, p.r, box) for p in particles]
+    Iijterm(r,i,j) = δ(i,j) * norm(r)^2 - r[i] * r[j]
+    Iij(i, j) = sum([Iijterm(r, i, j) for r in coords])
     I = SMatrix{3,3}([Iij(i,j) for i in 1:3, j in 1:3])
     return I
 end # function
 
-function inertiatensor(config::T) where T<:AbstractVector{Atom}
+function inertiatensor(atoms::T, box) where T<:AbstractVector{Atom}
+    natoms = size(atoms, 1)
+    com = centerofmass(atoms, box)
+    coords = [distancevector(com, a.r, box) for a in atoms]
+    Iijterm(r,i,j) = δ(i,j) * norm(r)^2 - r[i] * r[j]
     Iij(i, j) = sum([
-        p.m*(norm(p.r)^2*δ(i,j) - p.r[i]*p.r[j]) for p in config
+        atoms[n].m * Iijterm(coords[i], i, j) for n in 1:natoms
     ])
     I = SMatrix{3,3}([Iij(i,j) for i in 1:3, j in 1:3])
     return I
