@@ -6,5 +6,6 @@ using StaticArrays
 using StatsBase
 
 include("histograms.jl")
+include("inertiatensor.jl")
 
 end # module
