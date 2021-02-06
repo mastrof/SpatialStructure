@@ -12,6 +12,14 @@ function inertiatensor(config::T) where T <:AbstractVector{Particle{3,Float64}}
     return I
 end # function
 
+function inertiatensor(config::T) where T<:AbstractVector{Atom}
+    Iij(i, j) = sum([
+        p.m*(norm(p.r)^2*δ(i,j) - p.r[i]*p.r[j]) for p in config
+    ])
+    I = SMatrix{3,3}([Iij(i,j) for i in 1:3, j in 1:3])
+    return I
+end # function
+
 function asphericity(I::SMatrix{3,3,Float64})
     λ = eigvals(I)
     α = sum(abs2.(diff(vcat(λ, [λ[1]])))) / (2 * sum(λ)^2)
