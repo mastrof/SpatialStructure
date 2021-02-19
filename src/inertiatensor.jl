@@ -2,7 +2,8 @@ export
     inertiatensor,
     asphericity,
     elongation,
-    prolateness
+    prolateness,
+    gyrationradius
 
 δ(i, j) = i == j ? 1 : 0
 
@@ -28,7 +29,7 @@ function inertiatensor(atoms::T, box) where T<:AbstractVector{Atom}
 end # function
 
 function asphericity(I::SMatrix{3,3,Float64})
-    λ = eigvals(I)
+    λ = sqrt.(3 .* eigvals(I))
     α = sum(abs2.(diff(vcat(λ, [λ[1]])))) / (2 * sum(λ)^2)
     return α
 end # function
@@ -40,11 +41,15 @@ function elongation(I::SMatrix{3,3,Float64})
 end # function
 
 function prolateness(I::SMatrix{3,3,Float64})
-    λ = eigvals(I)
+    λ = sqrt.(3 .* eigvals(I))
     a = 2*λ[1]-λ[2]-λ[3]
     b = 2*λ[2]-λ[3]-λ[1]
     c = 2*λ[3]-λ[1]-λ[2]
     d = 2*(λ[1]^2 + λ[2]^2 + λ[3]^2 - λ[1]*λ[2] - λ[2]*λ[3] - λ[3]*λ[1])
     p = a * b * c / d^(3/2)
     return p
+end # function
+
+function gyrationradius(I::SMatrix{3,3,Float64})
+    return sum(eigvals(I))
 end # function
