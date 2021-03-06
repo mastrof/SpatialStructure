@@ -21,7 +21,8 @@ The total radial distribution function of the system is obtained by summing over
 """
 function radialdistribution(particles, box, npoints::Int)
     nparticles = size(particles, 1)
-    ρ = (nparticles - 1) / prod(box)
+    volume = typeof(box) <: Real ? box^3 : prod(box)
+    ρ = (nparticles - 1) / volume
 
     rpoints, hist = histradial(particles, box, npoints)
     n = hist ./ nparticles
@@ -40,8 +41,9 @@ end # function
 function radialdistribution(particles_A, particles_B, box, npoints::Int)
     nparticles_A = size(particles_A, 1)
     nparticles_B = size(particles_B, 1)
-    ρA = nparticles_A / prod(box)
-    ρB = nparticles_B / prod(box)
+    volume = typeof(box) <: Real ? box^3 : prod(box)
+    ρA = nparticles_A / volume
+    ρB = nparticles_B / volume
     ρ = sqrt(ρA * ρB) # partial density
 
     rpoints, hist = histradial(particles_A, particles_B, box, npoints)
