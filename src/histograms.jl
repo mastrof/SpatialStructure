@@ -3,20 +3,30 @@ export
     histangular,
     histspatial
 
+AbstractCoordinates{T} = Union{AbstractVector{T}, AbstractParticle{D,T} where D}
+
 getdimension(r::SVector{D,T}) where {D,T} = D
 
 @doc raw"""
-    histradial(particles::Vector{T}, box::AbstractVector, npoints::Int) where {T<:AbstractParticle}
+    histradial(particles::T, box, npoints::Int) where {S<:Real,T<:AbstractVector{S}}
+    histradial(particles::T, box, npoints::Int) where {S<:AbstractParticle,T<:AbstractVector{S}}
+    histradial(distances::T, box, npoints::Int) where {S<:Real,T<:AbstractMatrix{S}}
 
 Evaluates the distribution of pair distances of `particles` in a box of edges `box` up to a maximum distance equal to half the shortest edge in order to avoid artefacts from periodic boundary conditions(assumed cubic).
+`npoints` is the sampling density. Works with systems of arbitrary dimensionality.
+
+---
+    histradial(particles_A::Vector{T}, particles_B::Vector{T}, box, npoints::Int) where {S<:Real,T<:AbstractVector{S}}
+    histradial(particles_A::Vector{T}, particles_B::Vector{T}, box, npoints::Int) where {S<:AbstractParticle,T<:AbstractVector{S}}
+
+Evaluates the distribution of pair distances between `particles_A` and `particles_B` in a box of edges `box` up to a maximum distance equal to half the shortest edge in order to avoid artefacts from periodic boundary conditions(assumed cubic).
 `npoints` is the sampling density.
 Works with systems of arbitrary dimensionality.
+
 """
-function histradial(particles::Vector{T},
-                    box::AbstractVector,
-                    npoints::Int) where {T<:AbstractParticle}
-    nparticles = size(particles, 1)
-    bin_edges = [r for r in range(0, minimum(box)/2; length=npoints+1)]
+function histradial(particles::T, box, npoints::Int) where {S<:AbstractCoordinates,T<:AbstractVector{S}}
+    nparticles = length(particles)
+    bin_edges = collect(range(0, minimum(box/2); length = npoints + 1))
     δr = bin_edges[2] - bin_edges[1]
     rpoints = bin_edges[1:end-1] .+ δr / 2
     hist = zeros(npoints)
@@ -36,11 +46,24 @@ function histradial(particles::Vector{T},
     return rpoints, hist
 end # function
 
+function histradial(distances::T, box, npoints) where {S<:Real,T<:AbstractMatrix}
+    nparticles = size(distances, 1)
+    bin_edges = collect(range(0, minimum(box/2); length = npoints + 1))
+    δr = bin_edges[2] - bin_edges[1]
+    rpoints = bin_edges[1:end-1] .+ δr / 2
+    hist = zeros(npoints)
 
-function histradial(particles, boxedge::Float64, npoints::Int)
-    D = getdimension(particles[1].r)
-    box = SVector{D,Float64}(repeat([boxedge], D))
-    histradial(atoms, box, npoints)    
+    @inbounds for j in 1:nparticles
+        for i in j+1:nparticles
+            r_ij = distances[i,j]
+            k = floor(Int, r_ij / δr) + 1
+            if 1 ≤ k ≤ npoints
+                hist[k] += 2.0
+            end # if
+        end # for
+    end # for
+
+    return rpoints, hist
 end # function
 
 function histradial(particles, box, δr::Float64)
@@ -48,22 +71,10 @@ function histradial(particles, box, δr::Float64)
     histradial(particles, box, npoints)
 end # function
 
-
-
-@doc raw"""
-    histradial(particles_A::Vector{T}, particles_B::Vector{T}, box::AbstractVector, npoints::Int) where {T<:AbstractParticle}
-
-Evaluates the distribution of pair distances between `particles_A` and `particles_B` in a box of edges `box` up to a maximum distance equal to half the shortest edge in order to avoid artefacts from periodic boundary conditions(assumed cubic).
-`npoints` is the sampling density.
-Works with systems of arbitrary dimensionality.
-"""
-function histradial(particles_A::Vector{T},
-                    particles_B::Vector{T},
-                    box::AbstractVector,
-                    npoints::Int) where {T<:AbstractParticle}
-    nparticles_A = size(particles_A, 1)
-    nparticles_B = size(particles_B, 1)
-    bin_edges = [r for r in range(0, minimum(box) / 2; length=npoints+1)]
+function histradial(particles_A::T, particles_B::T, box, npoints::Int) where {S<:AbstractCoordinates,T<:AbstractVector{S}}
+    nparticles_A = length(particles_A)
+    nparticles_B = length(particles_B)
+    bin_edges = collect(range(0, minimum(box/2); length = npoints + 1))
     δr = bin_edges[2] - bin_edges[1]
     rpoints = bin_edges[1:end-1] .+ δr / 2
     hist = zeros(npoints)
@@ -83,18 +94,17 @@ function histradial(particles_A::Vector{T},
     return rpoints, hist
 end # function
 
-
-function histradial(particles_A, particles_B, boxedge::Float64, npoints::Int)
-    D = getdimension(particles_A[1].r)
-    box = SVector{D,Float64}(repeat([boxedge], D))
-    histradial(particles_A, particles_B, box, npoints)
-end # function
-
 function histradial(particles_A, particles_B, box, δr::Float64)
     npoints = floor(Int, (minimum(box) / 2) ÷ δr) + 1
     histradial(particles_A, particles_B, box, npoints)
 end # function
 
+
+
+
+
+
+#======= NEEDS REVIEW =======#
 
 @doc raw"""
     histangular(particles::Vector{T}, box::AbstractVector, anglerule::Function, binedges::AbstractVector) where {T<:AbstractParticle}
