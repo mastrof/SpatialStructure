@@ -56,7 +56,7 @@ function prolateness2(I::SMatrix{3,3,Float64})
 end # function
 
 function elongation(I::SMatrix{3,3,Float64})
-    λ = sqrt.(3 .* eigvals(I))
+    λ = eigvals(I)
     ϵ = (λ[2] - λ[1]) / λ[3]
     return ϵ
 end # function
